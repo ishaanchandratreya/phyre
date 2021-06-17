@@ -295,6 +295,7 @@ class ActionSimulator():
                     status=SimulationStatus.UNSTABLY_SOLVED,
                     images=images,
                     featurized_objects=objects)
+
         return phyre.simulation.Simulation(
             status=SimulationStatus.STABLY_SOLVED,
             images=images,

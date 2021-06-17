@@ -189,6 +189,7 @@ def _prepare_user_input(points, rectangulars, balls):
     return points, rectangulars, balls
 
 
+
 def magic_ponies(task,
                  user_input,
                  steps=DEFAULT_MAX_STEPS,
@@ -238,13 +239,22 @@ def magic_ponies(task,
         serialized_task = serialize(task)
         height, width = task.scene.height, task.scene.width
     if isinstance(user_input, scene_if.UserInput):
+
+
+
+
         is_solved, had_occlusions, packed_images, packed_featurized_objects, number_objects, sim_time, pack_time = (
             simulator_bindings.magic_ponies_general(serialized_task,
                                                     serialize(user_input),
                                                     keep_space_around_bodies,
                                                     steps, stride, need_images,
                                                     need_featurized_objects))
+
+
+
     else:
+
+
         points, rectangulars, balls = _prepare_user_input(*user_input)
         is_solved, had_occlusions, packed_images, packed_featurized_objects, number_objects, sim_time, pack_time = (
             simulator_bindings.magic_ponies(serialized_task, points,
@@ -267,6 +277,8 @@ def magic_ponies(task,
             (-1, number_objects, OBJECT_FEATURE_SIZE))
     packed_featurized_objects = phyre.simulation.finalize_featurized_objects(
         packed_featurized_objects)
+
+    print(packed_featurized_objects.shape)
     if with_times:
         return is_solved, had_occlusions, images, packed_featurized_objects, sim_time, pack_time
     else:
