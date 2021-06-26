@@ -51,6 +51,7 @@ class DimensionType(enum.IntEnum):
     POSITION = 0
     SIZE = 1
     ANGLE = 2
+    VELOCITY = 3
 
 
 class ActionMapper():
@@ -142,6 +143,9 @@ def _scale(x, low, high):
     return x * (high - low) + low
 
 
+def _unscale(x, low, high):
+    return (x - low) / (high - low)
+
 class BallScaler(object):
 
     MIN_RADIUS = 2
@@ -160,7 +164,61 @@ class BallScaler(object):
         x, y, radius = cls.scale(*action)
         user_input.balls.append(
             scene_if.CircleWithPosition(position=scene_if.Vector(x=x, y=y),
-                                        radius=radius))
+                                        radius=radius,
+                                        velocity=scene_if.Vector(x=0.0, y=0.0)))
+
+
+class BallScalerWithVelocity(object):
+
+    MIN_RADIUS = 2
+    MAX_RADIUS = max(SCENE_WIDTH, SCENE_HEIGHT) // 8
+    assert MIN_RADIUS < MAX_RADIUS
+
+    @classmethod
+    def scale(cls, x, y, vx, vy, radius):
+        x = _scale(x, 0, SCENE_WIDTH - 1)
+        y = _scale(y, 0, SCENE_HEIGHT - 1)
+        radius = _scale(radius, cls.MIN_RADIUS, cls.MAX_RADIUS)
+        vx = _scale(vx, 0, SCENE_WIDTH - 1)
+        vy = _scale(vy, 0 , SCENE_HEIGHT -1)
+
+        return x, y, vx, vy, radius
+
+    @classmethod
+    def add_to_user_input(cls, action, user_input):
+        x, y, vx, vy, radius = cls.scale(*action)
+        user_input.balls.append(
+            scene_if.CircleWithPosition(position=scene_if.Vector(x=x, y=y),
+                                        radius=radius,
+                                        velocity=scene_if.Vector(x=vx, y=vy)))
+
+
+
+class Unscaler(object):
+
+    MIN_RADIUS = 2
+    MAX_RADIUS = max(SCENE_WIDTH, SCENE_HEIGHT) // 8
+    assert MIN_RADIUS < MAX_RADIUS
+
+    @classmethod
+    def unscale(cls, x, y, radius):
+
+        x = _unscale(x, 0, SCENE_WIDTH - 1)
+        y = _unscale(y, 0, SCENE_HEIGHT -1)
+        radius = _unscale(radius, cls.MIN_RADIUS, cls.MAX_RADIUS)
+
+        return x, y, radius
+
+    @classmethod
+    def unscale_with_velocity(cls, x, y, vx, vy, radius):
+
+        x = _unscale(x, 0, SCENE_WIDTH - 1)
+        y = _unscale(y, 0, SCENE_HEIGHT -1)
+        radius = _unscale(radius, cls.MIN_RADIUS, cls.MAX_RADIUS)
+        vx = _unscale(vx, 0, SCENE_WIDTH - 1)
+        vy = _unscale(vy, 0, SCENE_HEIGHT - 1)
+
+        return x, y, vx, vy, radius
 
 
 class RampScaler(object):
@@ -203,6 +261,7 @@ class RampScaler(object):
             scene_if.AbsoluteConvexPolygon(vertices=vertices))
 
 
+
 class SingleBallActionMapper(ActionMapper):
 
     OCCLUSIONS_ALLOWED = False
@@ -217,6 +276,29 @@ class SingleBallActionMapper(ActionMapper):
                                         balls=[],
                                         polygons=[])
         BallScaler.add_to_user_input(action, user_input)
+        if not _is_inside_scene(user_input):
+            return EMPTY_USER_INPUT, False
+        _quantize_user_input_in_place(user_input)
+        return user_input, True
+
+
+class SingleBallVelocityActionMapper(ActionMapper):
+
+    OCCLUSIONS_ALLOWED = False
+    KEEP_SPACE_AROUND_BODIES = False
+    DIMENSION_TYPES = (DimensionType.POSITION, DimensionType.POSITION, DimensionType.VELOCITY, DimensionType.VELOCITY,
+                       DimensionType.SIZE)
+
+
+    def action_to_user_input(self, action):
+
+        action_bounded = [action[0], action[1], action[4]]
+        if not all(0 <= x <= 1 for x in action_bounded):
+            return EMPTY_USER_INPUT, False
+        user_input = scene_if.UserInput(flattened_point_list=[],
+                                        balls=[],
+                                        polygons=[])
+        BallScalerWithVelocity.add_to_user_input(action, user_input)
         if not _is_inside_scene(user_input):
             return EMPTY_USER_INPUT, False
         _quantize_user_input_in_place(user_input)
@@ -315,6 +397,7 @@ ACTION_MAPPERS: Dict[str, ActionMapper] = dict(
     ball=SingleBallActionMapper,
     two_balls=TwoBallsActionMapper,
     ramp=RampActionMapper,
+    ball_v=SingleBallVelocityActionMapper,
 )
 
 MAIN_ACITON_MAPPERS: FrozenSet[str] = frozenset({'ball', 'two_balls'})

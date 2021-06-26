@@ -96,6 +96,8 @@ UserInput buildUserInputObject(
     circle.position.__set_x(balls_flatten[i++]);
     circle.position.__set_y(balls_flatten[i++]);
     circle.__set_radius(balls_flatten[i++]);
+    circle.velocity.__set_x(balls_flatten[i++]);
+    circle.velocity.__set_y(balls_flatten[i++]);
     user_input.balls.push_back(circle);
   }
 

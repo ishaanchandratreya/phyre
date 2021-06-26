@@ -79,6 +79,7 @@ struct AbsoluteConvexPolygon {
 struct CircleWithPosition {
   1: optional Vector position,
   2: optional double radius,
+  3: optional Vector velocity,
 }
 
 struct UserInput {

@@ -242,13 +242,15 @@ def magic_ponies(task,
 
 
 
-
         is_solved, had_occlusions, packed_images, packed_featurized_objects, number_objects, sim_time, pack_time = (
             simulator_bindings.magic_ponies_general(serialized_task,
                                                     serialize(user_input),
                                                     keep_space_around_bodies,
                                                     steps, stride, need_images,
                                                     need_featurized_objects))
+
+
+
 
 
 
@@ -278,7 +280,7 @@ def magic_ponies(task,
     packed_featurized_objects = phyre.simulation.finalize_featurized_objects(
         packed_featurized_objects)
 
-    print(packed_featurized_objects.shape)
+    #print(packed_featurized_objects.shape)
     if with_times:
         return is_solved, had_occlusions, images, packed_featurized_objects, sim_time, pack_time
     else:

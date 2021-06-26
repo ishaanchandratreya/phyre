@@ -364,7 +364,7 @@ class Body(object):
 
     def set(self, **attributes):
         order = ('angle', 'left', 'right', 'top', 'bottom', 'center_x',
-                 'center_y', 'color')
+                 'center_y', 'color', 'vel_x', 'vel_y', 'ang_vel')
         for name in order:
             if name in attributes:
                 getattr(self, 'set_' + name)(attributes.pop(name))
@@ -382,6 +382,15 @@ class Body(object):
             if shape_type:
                 self._thrift_body.shapeType = shape_type
         return self
+
+    def set_vel_x(self, x):
+
+        self._thrift_body.velocity.x += x
+
+
+    def set_vel_y(self, y):
+
+        self._thrift_body.velocity.y += y
 
     def _yield_coordinates(self):
         x = self._thrift_body.position.x

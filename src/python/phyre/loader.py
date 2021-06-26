@@ -186,8 +186,24 @@ def load_compiled_template_dict() -> Dict[str, Dict[str, task_if.Task]]:
     return template_ids
 
 
-def load_compiled_task_list(task_ids: Sequence[str],) -> Sequence[task_if.Task]:
+def load_compiled_task_list(task_ids: Sequence[str], modify: bool=True) -> Sequence[task_if.Task]:
     """Helper function to load a list of tasks from the default task dump."""
     task_dict = load_compiled_task_dict(task_ids)
     tasks = [task_dict[task_id] for task_id in task_ids]
+    if modify:
+        tasks = modify_loaded_tasks(tasks)
+
     return tasks
+
+def modify_loaded_tasks(tasks: Sequence[task_if.Task],) -> Sequence[task_if.Task]:
+
+    '''Create 'step' like API using this method
+
+    for task in tasks:
+
+        print(dir(task))
+
+    '''
+
+    return tasks
+

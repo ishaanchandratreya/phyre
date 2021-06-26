@@ -342,7 +342,7 @@ bool mergeUserInputIntoScene(const ::scene::UserInput& userInput,
     }
     if (!hasOcclusions || allowOcclusions) {
       bodies->push_back(
-          buildCircle(ball.position.x, ball.position.y, ball.radius));
+          buildCircle(ball.position.x, ball.position.y, ball.velocity.x, ball.velocity.y, ball.radius));
     }
   }
 

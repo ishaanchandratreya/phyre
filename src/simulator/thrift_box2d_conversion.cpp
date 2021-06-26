@@ -96,6 +96,8 @@ b2BodyDef convertThriftBodyToBox2dBodyDef(const ::scene::Body& pThriftBody) {
 
   if (pThriftBody.bodyType == ::scene::BodyType::DYNAMIC) {
     bodyDef.type = b2_dynamicBody;
+    bodyDef.linearVelocity.Set(p2m(pThriftBody.velocity.x),
+                               p2m(pThriftBody.velocity.y));
   }
   return bodyDef;
 }
@@ -186,9 +188,15 @@ std::unique_ptr<b2WorldWithData> convertSceneToBox2dWorld_with_bounding_boxes(
                             ? new_scene.bodies
                             : new_scene.user_input_bodies;
     ::scene::Body& body = object_list.at(box2d_data->object_id);
+
+    body.velocity.__set_x(m2p(box2dBody->GetLinearVelocity().x));
+    body.velocity.__set_y(m2p(box2dBody->GetLinearVelocity().y));
+
     body.position.__set_x(m2p(box2dBody->GetPosition().x));
     body.position.__set_y(m2p(box2dBody->GetPosition().y));
     body.__set_angle(box2dBody->GetAngle());
+    body.__set_angular_velocity(box2dBody->GetAngularVelocity());
+
   }
   return new_scene;
 }
